@@ -1,0 +1,6 @@
+	#armorSheetContainer { width: 100%; height: 350px; transform: rotate(45deg); }
+	#armorSheet { background-color: darkgrey; padding-right: 10px; height: 100%; width: 0px; padding-right: 20px; margin-left: 50%;}
+	.armorPanel { width: fit-content; border: 1px solid grey; padding: 25px;}
+	.armorDisplay { width: 500px; height: 400px; position: relative; }
+	.rangeSlider { margin-top: 10px; margin-bottom: 15px; }
+	#thickness { width: 50px; }
