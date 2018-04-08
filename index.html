@@ -52,8 +52,8 @@
     document.getElementById("thickness").onkeyup = function(){
     	var panel = document.getElementById("armorSheet");
     	var input = document.getElementById("thickness").value;
-    	if(input < 5){
-    		document.getElementById("thickness").value = 5;
+    	if(input < 1){
+    		document.getElementById("thickness").value = 1;
     	}
     	panel.style.paddingRight = document.getElementById("thickness").value / 2 +"px";
     	console.log(panel.style.paddingRight)
