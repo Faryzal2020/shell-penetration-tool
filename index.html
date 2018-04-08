@@ -16,11 +16,15 @@
 			</div>
 		</div>
 		<div class="slider">
-			Angle: <output></output> Deg
+			Angle: <output id="angle"></output> Deg
 			<input type="range" min="0" max="90" data-rangeSlider>
-			
 		</div>
-		Thickness: <input type="text" name="thickness" id="thickness" value="40"> mm
+		<div class="row thicknessContainer">
+			Thickness: <input type="text" name="thickness" id="thickness" value="40"> mm
+		</div>
+		<div class="row effthicknessContainer">
+			Effective Thickness: <span id="effthickness"></span> mm
+		</div>
 	</div>
 
 <script src="js/range-slider.js"></script>
@@ -37,6 +41,12 @@
       var panel = document.getElementById("armorSheetContainer");
       panel.style.transform = "rotate("+value+"deg)";
       output.innerHTML = value;
+
+        var a = Number(document.getElementById("thickness").value);
+    	var A = (180-Number(document.getElementById("angle").innerHTML)-90)*(Math.PI/180);
+    	var b = a/Math.sin(A);
+    	b = Math.round(b * 100) / 100;
+    	document.getElementById("effthickness").innerHTML = b;
     }
 
     document.getElementById("thickness").onkeyup = function(){
@@ -47,6 +57,12 @@
     	}
     	panel.style.paddingRight = document.getElementById("thickness").value / 2 +"px";
     	console.log(panel.style.paddingRight)
+
+    	var a = Number(document.getElementById("thickness").value);
+    	var A = (180-Number(document.getElementById("angle").innerHTML)-90)*(Math.PI/180);
+    	var b = a/Math.sin(A);
+    	b = Math.round(b * 100) / 100;
+    	document.getElementById("effthickness").innerHTML = b;
     }
 
     for (var i = elements.length - 1; i >= 0; i--) {
