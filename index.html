@@ -6,8 +6,92 @@
 	<link rel="stylesheet" href="css/css.css">
 	<link rel="stylesheet" href="css/range-slider.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	
 </head>
 <body>	
+	<div class="shellPanel">
+		<div class="dropdown selectShell">
+			<span>Select Ammo </span><i class="fa fa-caret-down"></i>
+			<div class="dropdown-content">
+				<div id="shellList">
+					<img src="">
+				</div>
+			</div>
+		</div>
+		<div class="selectedShell">
+			<span>Selected Shell: </span><span id="selectedShell"></span>
+			<span style="display: none" id="selectedShellID"></span>
+		</div>
+		<div class="row dataTable">
+			<table style="text-align: center; width: 93%; border-collapse: collapse;">
+				<tr>
+					<td style="border: none;"></td>
+					<td colspan="3">Penetration Values</td>
+					<td style="border: none;"></td>
+					<td colspan="2">Ricochet Chances</td>
+				</tr>
+				<tr>
+					<td style="border: none;"></td>
+					<td style="width:52px;">0&#176;</td>
+					<td style="width:52px;">30&#176;</td>
+					<td style="width:52px;">60&#176;</td>
+					<td style="border: none;"></td>
+					<td style="width:105px;">Chance</td>
+					<td style="width:92px;">Angle of Attack</td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">10m</td>
+					<td id="0penet0"></td>
+					<td id="0penet30"></td>
+					<td id="0penet60"></td>
+					<td style="border: none;"></td>
+					<td>100%</td>
+					<td><span id="rico100"></span>&#176;</td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">100m</td>
+					<td id="1penet0"></td>
+					<td id="1penet30"></td>
+					<td id="1penet60"></td>
+					<td style="border: none;"></td>
+					<td>50%</td>
+					<td><span id="rico50"></span>&#176;</td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">500m</td>
+					<td id="2penet0"></td>
+					<td id="2penet30"></td>
+					<td id="2penet60"></td>
+					<td style="border: none;"></td>
+					<td>0%</td>
+					<td><span id="rico0"></span>&#176;</td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">1000m</td>
+					<td id="3penet0"></td>
+					<td id="3penet30"></td>
+					<td id="3penet60"></td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">1500m</td>
+					<td id="4penet0"></td>
+					<td id="4penet30"></td>
+					<td id="4penet60"></td>
+					<td style="border: none;"></td>
+					<td style="text-align: right;">Current Angle of Attack:</td>
+					<td><span id="aoa"></span>&#176;</td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">2000m</td>
+					<td id="5penet0"></td>
+					<td id="5penet30"></td>
+					<td id="5penet60"></td>
+					<td style="border: none;"></td>
+					<td style="text-align: right;">Chance of Ricochet:</td>
+					<td><span id="ricochetChance"></span>%</td>
+				</tr>
+			</table>
+		</div>
 	</div>
 	<div class="armorPanel">
 		<div class="armorDisplay">
@@ -28,13 +112,46 @@
 	</div>
 
 <script src="js/range-slider.js"></script>
+<script src="js/everpolate.browserified.min.js"></script>
+<script src="js/shellDB.js"></script>
 <script>
   (function () {
+  	selectShell(1);
 
     var selector = '[data-rangeSlider]',
       elements = document.querySelectorAll(selector);
+      console.log(everpolate.polynomial([20, 45], [0, 30, 60], [269, 243, 120]));
 
-    // Example functionality to demonstrate a value feedback
+    var shellcount = getShellCount();
+    var shellList = document.getElementById("shellList");
+    for (var i = 1; i <= shellcount; i++) {
+    	var shell = getShellData(i);
+    	var image = document.createElement('img');
+    	image.src = "img/"+shell.icon+".jpg";
+    	var text = document.createElement("span");
+    	text.innerHTML = shell.name;
+    	var newlist = document.createElement("div");
+    	newlist.className = "shellList";
+    	newlist.onclick = function(){selectShell(i);}
+    	newlist.appendChild(image);
+    	newlist.appendChild(text);
+    	shellList.insertBefore(newlist,shellList.lastChild);
+    }
+
+    function selectShell(i){
+    	var shell = getShellData(i);
+    	document.getElementById("selectedShell").innerHTML = shell.name;
+    	document.getElementById("selectedShellID").innerHTML = i;
+    	for (var i = 0; i <= 5; i++) {
+    		document.getElementById(i+"penet0").innerHTML = shell.angle1[i];
+    		document.getElementById(i+"penet30").innerHTML = shell.angle2[i];
+    		document.getElementById(i+"penet60").innerHTML = shell.angle3[i];
+    	}
+    	document.getElementById("rico100").innerHTML = shell.ricochet[0];
+    	document.getElementById("rico50").innerHTML = shell.ricochet[1];
+    	document.getElementById("rico0").innerHTML = shell.ricochet[2];
+    }
+    
     function valueOutput(element) {
       var value = element.value,
       output = element.parentNode.getElementsByTagName('output')[0];
@@ -47,6 +164,26 @@
     	var b = a/Math.sin(A);
     	b = Math.round(b * 100) / 100;
     	document.getElementById("effthickness").innerHTML = b;
+
+    	var selectedShellID = document.getElementById("selectedShellID").innerHTML;
+    	var aoa = document.getElementById("aoa").innerHTML
+    	document.getElementById("aoa").innerHTML = Math.round((A*(180/Math.PI))*10)/10;
+    	if(document.getElementById("selectedShellID").innerHTML != ""){
+    		document.getElementById("ricochetChance").innerHTML = getRicochet(aoa, selectedShellID);
+    	}
+    }
+
+    function getRicochet(aoa, shellID){
+    	var shell = getShellData(shellID);
+    	var chance = everpolate.polynomial([aoa],[shell.ricochet[0],shell.ricochet[1],shell.ricochet[2]],[100,50,0]);
+    	if(aoa < shell.ricochet[0]){chance = 100;}
+    	else if(aoa > shell.ricochet[2]){chance = 0;}
+    	chance = Math.round(chance*1)/1;
+    	return chance;
+    }
+
+    function getPenValue(angle, range, shellID){
+
     }
 
     document.getElementById("thickness").onkeyup = function(){
@@ -58,9 +195,11 @@
     	panel.style.paddingRight = document.getElementById("thickness").value / 2 +"px";
     	console.log(panel.style.paddingRight)
 
-    	var a = Number(document.getElementById("thickness").value);
-    	var A = (180-Number(document.getElementById("angle").innerHTML)-90)*(Math.PI/180);
-    	var b = a/Math.sin(A);
+    	var c = Number(document.getElementById("thickness").value);
+    	var A = Number(document.getElementById("angle").innerHTML);
+    	var B = 90;
+    	var C = (180-A-B)*(Math.PI/180);
+    	var b = c/Math.sin(C);
     	b = Math.round(b * 100) / 100;
     	document.getElementById("effthickness").innerHTML = b;
     }
@@ -84,17 +223,17 @@
 
       // Callback function
       onSlideStart: function (value, percent, position) {
-        console.info('onSlideStart', 'value: ' + value, 'percent: ' + percent, 'position: ' + position);
+        // console.info('onSlideStart', 'value: ' + value, 'percent: ' + percent, 'position: ' + position);
       },
 
       // Callback function
       onSlide: function (value, percent, position) {
-        console.log('onSlide', 'value: ' + value, 'percent: ' + percent, 'position: ' + position);
+        // console.log('onSlide', 'value: ' + value, 'percent: ' + percent, 'position: ' + position);
       },
 
       // Callback function
       onSlideEnd: function (value, percent, position) {
-        console.warn('onSlideEnd', 'value: ' + value, 'percent: ' + percent, 'position: ' + position);
+        // console.warn('onSlideEnd', 'value: ' + value, 'percent: ' + percent, 'position: ' + position);
       }
     });
 
