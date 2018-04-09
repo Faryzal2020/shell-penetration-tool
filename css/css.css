@@ -1,15 +1,17 @@
 	body { padding: 50px; }
 	#armorSheetContainer { width: 100%; height: 350px; transform: rotate(45deg); }
 	#armorSheet { background-color: darkgrey; padding-right: 10px; height: 100%; width: 0px; padding-right: 20px; margin-left: 50%;}
-	.armorPanel, .shellPanel { position: absolute; display: inline-block; width: fit-content; border: 1px solid grey; padding: 25px;}
+	.armorPanel, .shellPanel { margin-right: 10px; position: absolute; display: inline-block; width: fit-content; border: 1px solid grey; padding: 25px;}
 	.armorDisplay { width: 500px; height: 400px; position: relative; }
 	.rangeSlider { margin-top: 10px; margin-bottom: 15px; }
 	#thickness { width: 50px; }
 	.row { margin-top: 8px; }
-	.shellDisplay { width: 500px; height: 400px; }
-	.armorPanel { left: 609px; }
+	.shellDisplay { width: 500px; height: 205px; }
+	.armorPanel { left: 650px; }
 	.dataTable table td { padding: 2px; border: 1px solid lightgrey; }
-
+	.centerPanel { width: fit-content; border: 1px solid grey; padding: 10px; position: absolute; background-color: white; left: 383px; z-index: 1;}
+	.centerPanel input { width: 50px; }
+	.centerPanel td { text-align: center; }
 	.shellList { background-color: white; border: 2px solid grey;}
 	.shellList:hover { background-color: lightgrey; }
 	.shellList img { position: absolute; }

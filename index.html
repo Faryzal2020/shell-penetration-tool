@@ -8,8 +8,27 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	
 </head>
-<body>	
+<body>
+	<div class="centerPanel">
+		<table>
+			<tr class="rangeInput">
+				<td style="text-align: right;">Distance to target:</td>
+				<td style="width: "><input type="text" name="rangeInput" id="rangeInput" value="10"> m</td>
+			</tr>
+			<tr>
+				<td style="text-align: right;">Penetration value:</td>
+				<td><span id="calculatedPen"></span> mm</td>
+			</tr>
+			<tr>
+				<td style="text-align: right;">Armor Penetration:</td>
+				<td><span id="penResult">-</span></td>
+			</tr>
+		</table>
+	</div>
 	<div class="shellPanel">
+		<div class="shellDisplay">
+			
+		</div>
 		<div class="dropdown selectShell">
 			<span>Select Ammo </span><i class="fa fa-caret-down"></i>
 			<div class="dropdown-content">
@@ -101,7 +120,7 @@
 		</div>
 		<div class="slider">
 			Angle: <output id="angle"></output> Deg
-			<input type="range" min="0" max="90" data-rangeSlider>
+			<input type="range" min="0" max="90" data-rangeSlider id="rangeSlider">
 		</div>
 		<div class="row thicknessContainer">
 			Thickness: <input type="text" name="thickness" id="thickness" value="40"> mm
@@ -119,8 +138,7 @@
   	selectShell(1);
 
     var selector = '[data-rangeSlider]',
-      elements = document.querySelectorAll(selector);
-      console.log(everpolate.polynomial([20, 45], [0, 30, 60], [269, 243, 120]));
+    elements = document.querySelectorAll(selector);
 
     var shellcount = getShellCount();
     var shellList = document.getElementById("shellList");
@@ -150,6 +168,7 @@
     	document.getElementById("rico100").innerHTML = shell.ricochet[0];
     	document.getElementById("rico50").innerHTML = shell.ricochet[1];
     	document.getElementById("rico0").innerHTML = shell.ricochet[2];
+    	valueOutput(document.getElementById("rangeSlider"))
     }
     
     function valueOutput(element) {
@@ -170,6 +189,7 @@
     	document.getElementById("aoa").innerHTML = Math.round((A*(180/Math.PI))*10)/10;
     	if(document.getElementById("selectedShellID").innerHTML != ""){
     		document.getElementById("ricochetChance").innerHTML = getRicochet(aoa, selectedShellID);
+    		getPenValue(document.getElementById("angle").innerHTML, document.getElementById("rangeInput").value, selectedShellID);
     	}
     }
 
@@ -182,8 +202,38 @@
     	return chance;
     }
 
-    function getPenValue(angle, range, shellID){
+    function getPenValue(inputAngle, range, shellID){
+    	var shell = getShellData(shellID);
+    	var ranges = [10,100,500,1000,1500,2000];
+    	var penAtRange = [];
+    	for (var i = 1; i <= 3; i++) {
+    		var angle = 'angle'+i;
+    		penAtRange[i] = everpolate.polynomial([range],ranges,shell[angle]);
+    		if(i==1){penAtRange[0] = penAtRange[i];}
+    	} // output: penAtRange[penetration value at range x at 0 degree, at 30, and at 60]
+    	var result = everpolate.polynomial([inputAngle],[-2,0,30,60],penAtRange)
+    	result = Math.round(result*10)/10;
+    	document.getElementById("calculatedPen").innerHTML = result;
+    	penTest();
+    }
 
+    function penTest(){
+    	var penValue = document.getElementById("calculatedPen").innerHTML
+    	var effthickness = document.getElementById("effthickness").innerHTML
+    	if(Number(penValue) > Number(effthickness)){
+    		document.getElementById("penResult").innerHTML = "YES";
+    		document.getElementById("penResult").style.color = "green";
+    	} else {
+    		document.getElementById("penResult").innerHTML = "NO";
+    		document.getElementById("penResult").style.color = "red";
+    	}
+    }
+
+    document.getElementById("rangeInput").onkeyup = function(){
+    	if(document.getElementById("selectedShellID").innerHTML != ""){
+    		var selectedShellID = document.getElementById("selectedShellID").innerHTML;
+    		getPenValue(document.getElementById("angle").innerHTML, document.getElementById("rangeInput").value, selectedShellID);
+    	}
     }
 
     document.getElementById("thickness").onkeyup = function(){
@@ -202,6 +252,11 @@
     	var b = c/Math.sin(C);
     	b = Math.round(b * 100) / 100;
     	document.getElementById("effthickness").innerHTML = b;
+
+    	if(document.getElementById("selectedShellID").innerHTML != ""){
+    		var selectedShellID = document.getElementById("selectedShellID").innerHTML;
+    		getPenValue(document.getElementById("angle").innerHTML, document.getElementById("rangeInput").value, selectedShellID);
+    	}
     }
 
     for (var i = elements.length - 1; i >= 0; i--) {
