@@ -212,6 +212,7 @@
     	} // output: penAtRange[penetration value at range x at 0 degree, at 30, and at 60]
     	var result = everpolate.polynomial([inputAngle],[-2,0,30,60],penAtRange)
     	result = Math.round(result*10)/10;
+    	if(result < 0){result = 0;}
     	document.getElementById("calculatedPen").innerHTML = result;
     	penTest();
     }
@@ -229,6 +230,8 @@
     }
 
     document.getElementById("rangeInput").onkeyup = function(){
+    	var range = document.getElementById("rangeInput").value;
+    	if(range > 4000){document.getElementById("rangeInput").value = 4000;}
     	if(document.getElementById("selectedShellID").innerHTML != ""){
     		var selectedShellID = document.getElementById("selectedShellID").innerHTML;
     		getPenValue(document.getElementById("angle").innerHTML, document.getElementById("rangeInput").value, selectedShellID);
