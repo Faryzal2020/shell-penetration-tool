@@ -29,13 +29,44 @@
 		<div class="shellDisplay">
 			
 		</div>
+		<div class="dropdown selectNation">
+			<span>Select Nation </span><i class="fa fa-caret-down"></i>
+			<div class="dropdown-content">
+				<div class="nationList">
+					<ul>
+						<li onclick="selectNation('us')"><img src="img/flag-us.png"><div>USA</div></li>
+						<li onclick="selectNation('germany')"><img src="img/flag-germany.png"><div>Germany</div></li>
+						<li onclick="selectNation('soviet')"><img src="img/flag-soviet.png"><div>Soviet</div></li>
+						<li onclick="selectNation('uk')"><img src="img/flag-uk.png"><div>UK</div></li>
+						<li onclick="selectNation('japan')"><img src="img/flag-japan.png"><div>Japan</div></li>
+						<li onclick="selectNation('france')"><img src="img/flag-france.png"><div>France</div></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="dropdown selectCaliber">
+			<span>Select Gun </span><i class="fa fa-caret-down"></i>
+			<div class="dropdown-content">
+				<div class="caliberList">
+					<ul id="caliberList">
+					</ul>
+				</div>
+			</div>
+		</div>
 		<div class="dropdown selectShell">
 			<span>Select Ammo </span><i class="fa fa-caret-down"></i>
 			<div class="dropdown-content">
 				<div id="shellList">
-					<img src="">
 				</div>
 			</div>
+		</div>
+		<div class="selectedNation" style="margin-top: 10px;">
+			<span>Selected Nation: </span><span id="selectedNationName">Germany</span>
+			<span style="display: none" id="selectedNation">germany</span>
+		</div>
+		<div class="selectedCaliber">
+			<span>Selected Gun: </span><span id="selectedCaliberName"></span>
+			<span style="display: none" id="selectedCaliber"></span>
 		</div>
 		<div class="selectedShell">
 			<span>Selected Shell: </span><span id="selectedShell"></span>
@@ -138,41 +169,113 @@
 <script src="js/everpolate.browserified.min.js"></script>
 <script src="js/shellDB.js"></script>
 <script>
-  (function () {
-  	selectShell(1);
+	selectNation('germany');
+	selectCaliber('75mm KwK42');
+	selectShell(35)
+
+	function selectNation(nation){
+		selectShell(0);
+		var nations = {
+			'germany' : "<li onclick=\"selectCaliber(\'37mm KwK34(t)\')\"><div>37mm KwK34(t)</div></li>"+
+						"<li onclick=\"selectCaliber(\'37mm KwK38(t)\')\"><div>37mm KwK38(t)</div></li>"+
+						"<li onclick=\"selectCaliber(\'37mm KwK36\')\"><div>37mm KwK36</div></li>"+
+						"<li onclick=\"selectCaliber(\'47mm Pak.(t)(Sf.)\')\"><div>47mm Pak.(t)(Sf.)</div></li>"+
+						"<li onclick=\"selectCaliber(\'50mm KwK38\')\"><div>50mm KwK38</div></li>"+
+						"<li onclick=\"selectCaliber(\'50mm KwK39\')\"><div>50mm KwK39</div></li>"+
+						"<li onclick=\"selectCaliber(\'75mm KwK37\')\"><div>75mm KwK37</div></li>"+
+						"<li onclick=\"selectCaliber(\'75mm KwK40 L43\')\"><div>75mm KwK40 L43</div></li>"+
+						"<li onclick=\"selectCaliber(\'75mm PaK40 L46\')\"><div>75mm PaK40 L46</div></li>"+
+						"<li onclick=\"selectCaliber(\'75mm KwK40 L48\')\"><div>75mm KwK40 L48</div></li>"+
+						"<li onclick=\"selectCaliber(\'75mm StuK40 L48\')\"><div>75mm StuK40 L48</div></li>"+
+						"<li onclick=\"selectCaliber(\'75mm KwK42\')\"><div>75mm KwK42</div></li>"+
+						"<li onclick=\"selectCaliber(\'76mm PaK36 (r)\')\"><div>76mm PaK36 (r)</div></li>"+
+						"<li onclick=\"selectCaliber(\'88mm Flak.37\')\"><div>88mm Flak.37</div></li>"+
+						"<li onclick=\"selectCaliber(\'88mm KwK36\')\"><div>88mm KwK36</div></li>"+
+						"<li onclick=\"selectCaliber(\'88mm KwK43\')\"><div>88mm KwK43</div></li>"+
+						"<li onclick=\"selectCaliber(\'105mm K.18\')\"><div>105mm K.18</div></li>"+
+						"<li onclick=\"selectCaliber(\'105mm StuH42\')\"><div>105mm StuH42</div></li>"+
+						"<li onclick=\"selectCaliber(\'128mm K.40\')\"><div>128mm K.40</div></li>"+
+						"<li onclick=\"selectCaliber(\'128mm KwK44\')\"><div>128mm PaK44</div></li>",
+			'us' : "<li><div>No Data</div></li>",
+			'uk' : "<li><div>No Data</div></li>",
+			'soviet' : "<li><div>No Data</div></li>",
+			'japan' : "<li><div>No Data</div></li>",
+			'france' : "<li><div>No Data</div></li>",
+		}
+		var nationNames = {
+			'germany' : "Germany",
+			'us' : "USA",
+			'uk' : "Great Britain",
+			'soviet' : "Soviet Union",
+			'japan' : "Japan",
+			'france' : "France"
+		}
+    	document.getElementById("caliberList").innerHTML = nations[nation];
+    	document.getElementById("selectedNationName").innerHTML = nationNames[nation];
+    	document.getElementById("selectedNation").innerHTML = nation;
+    }
+
+    function selectCaliber(cal){
+    	selectShell(0);
+       	document.getElementById("selectedCaliberName").innerHTML = cal;
+    	document.getElementById("selectedCaliber").innerHTML = cal;
+    	
+
+    	var shellcount = getShellCount();
+    	var shellList = document.getElementById("shellList");
+    	shellList.innerHTML = "";
+    	for (var i = 1; i <= shellcount; i++) {
+	    	var shell = getShellData(i);
+	    	var nation = document.getElementById("selectedNation").innerHTML;
+	    	var caliber = document.getElementById("selectedCaliber").innerHTML;
+
+	    	if(shell.nation == nation && shell.caliber == caliber){
+	    		var element = "<div class='shellList' onclick=\"selectShell(\'"+i+"\')\">"+
+	    						"<img src=\"img/"+shell.icon+".jpg\">"+
+	    						"<span>"+shell.name+"</span>";
+		    	var newlist = document.createElement("div");
+		    	newlist.innerHTML = element;
+		    	shellList.insertBefore(newlist,shellList.lastChild);
+		    }
+	    }
+    }
 
     var selector = '[data-rangeSlider]',
     elements = document.querySelectorAll(selector);
 
-    var shellcount = getShellCount();
-    var shellList = document.getElementById("shellList");
-    for (var i = 1; i <= shellcount; i++) {
-    	var shell = getShellData(i);
-    	var image = document.createElement('img');
-    	image.src = "img/"+shell.icon+".jpg";
-    	var text = document.createElement("span");
-    	text.innerHTML = shell.name;
-    	var newlist = document.createElement("div");
-    	newlist.className = "shellList";
-    	newlist.onclick = function(){selectShell(i);}
-    	newlist.appendChild(image);
-    	newlist.appendChild(text);
-    	shellList.insertBefore(newlist,shellList.lastChild);
-    }
-
     function selectShell(i){
-    	var shell = getShellData(i);
-    	document.getElementById("selectedShell").innerHTML = shell.name;
-    	document.getElementById("selectedShellID").innerHTML = i;
-    	for (var i = 0; i <= 5; i++) {
-    		document.getElementById(i+"penet0").innerHTML = shell.angle1[i];
-    		document.getElementById(i+"penet30").innerHTML = shell.angle2[i];
-    		document.getElementById(i+"penet60").innerHTML = shell.angle3[i];
-    	}
-    	document.getElementById("rico100").innerHTML = shell.ricochet[0];
-    	document.getElementById("rico50").innerHTML = shell.ricochet[1];
-    	document.getElementById("rico0").innerHTML = shell.ricochet[2];
-    	valueOutput(document.getElementById("rangeSlider"))
+    	if(i == 0){
+	    	document.getElementById("selectedShell").innerHTML = "-";
+	    	document.getElementById("selectedShellID").innerHTML = "";
+	    	for (var i = 0; i <= 5; i++) {
+	    		document.getElementById(i+"penet0").innerHTML = "";
+	    		document.getElementById(i+"penet30").innerHTML = "";
+	    		document.getElementById(i+"penet60").innerHTML = "";
+	    	}
+	    	document.getElementById("rico100").innerHTML = "";
+	    	document.getElementById("rico50").innerHTML = "";
+	    	document.getElementById("rico0").innerHTML = "";
+	    	document.getElementById("calculatedPen").innerHTML = "";
+	    	document.getElementById("ricochetChance").innerHTML = "";
+	    	document.getElementById("penResult").innerHTML = "-";
+    		document.getElementById("penResult").style.color = "black";
+	       	document.getElementById("selectedCaliberName").innerHTML = "-";
+    		document.getElementById("selectedCaliber").innerHTML = "";
+    		document.getElementById("shellList").innerHTML = "";
+    	} else {
+	    	var shell = getShellData(i);
+	    	document.getElementById("selectedShell").innerHTML = shell.name;
+	    	document.getElementById("selectedShellID").innerHTML = i;
+	    	for (var i = 0; i <= 5; i++) {
+	    		document.getElementById(i+"penet0").innerHTML = shell.angle1[i];
+	    		document.getElementById(i+"penet30").innerHTML = shell.angle2[i];
+	    		document.getElementById(i+"penet60").innerHTML = shell.angle3[i];
+	    	}
+	    	document.getElementById("rico100").innerHTML = shell.ricochet[0];
+	    	document.getElementById("rico50").innerHTML = shell.ricochet[1];
+	    	document.getElementById("rico0").innerHTML = shell.ricochet[2];
+	    }
+	    valueOutput(document.getElementById("rangeSlider"))
     }
     
     function valueOutput(element) {
@@ -217,6 +320,7 @@
     	} // output: penAtRange[penetration value at range x at 0 degree, at 30, and at 60]
     	var result = everpolate.polynomial([inputAngle],[-2,0,30,60],penAtRange)
     	result = Math.round(result*10)/10;
+    	if(everpolate.polynomial([60],[-2,0,30,60],penAtRange) == 0 && inputAngle > 60){ result = 0;}
     	if(result < 0){result = 0;}
     	document.getElementById("calculatedPen").innerHTML = result;
     	penTest();
@@ -276,7 +380,6 @@
       el.addEventListener('input', function (e) {
         valueOutput(e.target);
       }, false);
-    });
 
     // Basic rangeSlider initialization
     rangeSlider.create(elements, {
